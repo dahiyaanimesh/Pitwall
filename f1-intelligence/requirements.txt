@@ -10,3 +10,8 @@ tqdm
 python-dotenv
 fastparquet
 xgboost
+joblib
+matplotlib
+scipy
+requests
+requests-cache
