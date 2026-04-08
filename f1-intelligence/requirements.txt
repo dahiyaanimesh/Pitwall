@@ -9,3 +9,4 @@ shap
 tqdm
 python-dotenv
 fastparquet
+xgboost
