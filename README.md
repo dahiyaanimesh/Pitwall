@@ -85,14 +85,14 @@ The 2021 Abu Dhabi Grand Prix ended the championship on the final lap after a Sa
 
 ```bash
 git clone https://github.com/dahiyaanimesh/pitwall
-cd pitwall/f1-intelligence
+cd pitwall
 
 # Backend
 pip install -r requirements.txt
 uvicorn backend.api.main:app --port 8010 --reload
 
 # Frontend (new terminal)
-cd pitwall/f1-intelligence/frontend
+cd pitwall/frontend
 npm install
 npm run dev    # http://localhost:5173
 ```
