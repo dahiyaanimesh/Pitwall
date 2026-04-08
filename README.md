@@ -3,7 +3,7 @@
 
 End-to-end Formula 1 analytics platform covering four seasons of race data (2021–2024) with machine learning predictions and a strategy optimizer.
 
-**Live demo:** _coming soon_  
+**Live demo:** [pitwall.dahiyaanimesh.co.in](https://pitwall.dahiyaanimesh.co.in)  
 **Stack:** FastAPI · SQLite · FastF1 · scikit-learn · XGBoost · React · TypeScript · Recharts
 
 ---
