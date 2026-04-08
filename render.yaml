@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pitwall-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: DB_PATH
+        value: /opt/render/project/src/backend/database/f1.db
+      - key: CORS_ORIGINS
+        value: https://pitwall.dahiyaanimesh.co.in,http://localhost:5173
