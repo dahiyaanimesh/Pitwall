@@ -1,0 +1,50 @@
+{
+  "regressor": {
+    "model": "RandomForest",
+    "rf_mae": 3.509,
+    "rf_r2": 0.417,
+    "xgb_mae": 3.739,
+    "xgb_r2": 0.347,
+    "best_mae": 3.509,
+    "best_r2": 0.417
+  },
+  "classifier": {
+    "model": "XGBoost",
+    "rf_acc": 0.88,
+    "rf_f1": 0.538,
+    "xgb_acc": 0.85,
+    "xgb_f1": 0.571,
+    "best_acc": 0.88,
+    "best_f1": 0.571
+  },
+  "per_race_test": [
+    {
+      "round_number": 18,
+      "mae": 3.7031296876575963,
+      "r2_approx": 2.5763965172183347
+    },
+    {
+      "round_number": 19,
+      "mae": 3.456759184899245,
+      "r2_approx": 2.3105840321039612
+    },
+    {
+      "round_number": 20,
+      "mae": 3.930783415364594,
+      "r2_approx": 2.8323223405407614
+    },
+    {
+      "round_number": 21,
+      "mae": 3.747082002494153,
+      "r2_approx": 3.077913421672008
+    },
+    {
+      "round_number": 22,
+      "mae": 2.709182630176092,
+      "r2_approx": 2.614871896047857
+    }
+  ],
+  "best_round": 22,
+  "worst_round": 20,
+  "full_season_mae": 2.173
+}

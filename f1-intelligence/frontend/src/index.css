@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Global base ───────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+  margin: 0;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Dot grid background ───────────────────────────────────────── */
+
+.dot-grid {
+  background-image: radial-gradient(circle, #1e1e1e 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+/* ─── Card / Surface utilities ──────────────────────────────────── */
+
+.card {
+  background: #141414;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+}
+
+.card:hover {
+  border-color: #2a2a2a;
+}
+
+.card-inner {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
+}
+
+/* ─── Section labels ────────────────────────────────────────────── */
+
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+/* ─── Badge ─────────────────────────────────────────────────────── */
+
+.badge-red {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(225, 6, 0, 0.12);
+  border: 1px solid rgba(225, 6, 0, 0.3);
+  color: #E10600;
+}
+
+/* ─── Table rows ────────────────────────────────────────────────── */
+
+.table-row-hover:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* ─── HR fade ───────────────────────────────────────────────────── */
+
+.hr-fade {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #1f1f1f 20%, #1f1f1f 80%, transparent);
+}
+
+/* ─── Skeleton shimmer ──────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(90deg, #1f1f1f 25%, #2a2a2a 50%, #1f1f1f 75%);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+  border-radius: 4px;
+}
+
+/* ─── Chart tooltip ─────────────────────────────────────────────── */
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #1f1f1f !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+}

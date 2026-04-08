@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npx create-vite@latest frontend --template react-ts)",
+      "Bash(npx --yes create-vite@latest frontend --template react-ts)",
+      "Bash(curl -s \"http://127.0.0.1:8002/drivers/overperformers?season=2021\")",
+      "Bash(python -W ignore -c ':*)",
+      "Bash(python backend/ml/train.py --season 2021)",
+      "Bash(npx skills:*)"
+    ]
+  }
+}
