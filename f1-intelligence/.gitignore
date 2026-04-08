@@ -21,9 +21,8 @@ fastf1_cache/
 
 # ML artifacts
 # backend/ml/models/*.pkl  # committed for deployment
-backend/ml/features_*.parquet
+
 backend/ml/models/predictions_*.parquet
-*.parquet
 
 # Logs
 logs/*.log
