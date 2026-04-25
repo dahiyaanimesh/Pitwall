@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { shortName } from '../../utils/formatters'
 import { ChevronDown } from 'lucide-react'
 import { useRacePrediction } from '../../hooks/usePredictions'
 import { TEAM_COLORS } from '../DriverAvatar'
@@ -46,10 +47,6 @@ function TeamDot({ teamId }: { teamId: string | null }) {
 interface Props {
   season: number
   races: { round_number: number; race_name: string; race_date?: string | null }[]
-}
-
-function shortName(name: string) {
-  return name.replace('FORMULA 1 ', '').replace(/\d{4}$/, '').replace(/GRAND PRIX/i, 'GP').trim().split(' ').slice(0, 3).join(' ')
 }
 
 const BASE_VALUE = 10.5

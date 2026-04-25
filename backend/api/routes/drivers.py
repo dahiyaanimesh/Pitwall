@@ -279,7 +279,7 @@ def driver_season_arc(
 
     races = conn.execute(
         """SELECT r.race_id, r.round_number, r.race_name, r.race_date,
-                  rr.finish_position, rr.points
+                  rr.finish_position, rr.points, rr.status
            FROM races r
            LEFT JOIN race_results rr
              ON r.race_id = rr.race_id AND rr.driver_id = ?
@@ -334,6 +334,7 @@ def driver_season_arc(
             "race_name": r["race_name"],
             "race_date": r["race_date"],
             "finish_position": r["finish_position"],
+            "status": r["status"],
             "points_scored": pts,
             "cumulative_points": round(cumulative_points, 1),
             "avg_lap_time": round(consistency["avg_lap"], 3) if consistency and consistency["avg_lap"] else None,

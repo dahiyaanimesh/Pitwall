@@ -50,7 +50,7 @@ function formatGap(gap: number): string {
 
 const PURPLE = '#b455f5'
 const GREEN  = '#22D3A5'
-const MUTED  = 'rgba(255,255,255,0.35)'
+const MUTED  = 'rgba(255,255,255,0.6)'
 
 function SectorCell({ time, overallBest }: { time: number | null; overallBest: number }) {
   if (time == null) return <span className="font-mono" style={{ color: MUTED }}>—</span>
@@ -104,7 +104,7 @@ export default function TimingTab({ raceId }: { raceId: number }) {
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-1.5">
             <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{label}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{label}</span>
           </div>
         ))}
       </div>

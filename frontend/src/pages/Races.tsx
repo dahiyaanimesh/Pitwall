@@ -11,10 +11,7 @@ import type { Race, RaceResult, PitStop } from '../types/f1'
 import TrackMap from '../components/TrackMap'
 import { getCircuitKey } from '../utils/circuitKeys'
 import TimingTab from '../components/races/TimingTab'
-
-function shortName(raw: string) {
-  return raw.replace(/FORMULA 1\s*/i, '').replace(/GRAND PRIX/i, 'GP').trim().split(' ').slice(0, 5).join(' ')
-}
+import { shortName } from '../utils/formatters'
 
 // Gold / Silver / Bronze
 const MEDAL_STYLES: Record<number, { bg: string; text: string; glow: string; label: string }> = {
@@ -61,7 +58,7 @@ function ResultsTable({ raceId }: { raceId: number }) {
               <th
                 key={label}
                 className={`px-4 py-3 text-${align} text-[11px] font-semibold uppercase tracking-[0.12em] ${cls}`}
-                style={{ color: '#6b7280' }}
+                style={{ color: '#d1d5db' }}
               >
                 {label}
               </th>
@@ -113,14 +110,14 @@ function ResultsTable({ raceId }: { raceId: number }) {
 
                 {/* Team */}
                 <td className="px-4 py-3.5 hidden sm:table-cell">
-                  <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                  <span className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>
                     {r.team_name?.replace(' Racing', '').replace('Formula One', '').trim() ?? '—'}
                   </span>
                 </td>
 
                 {/* Grid */}
                 <td className="px-4 py-3.5 text-right hidden md:table-cell">
-                  <span className="font-mono text-[13px]" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                  <span className="font-mono text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
                     {grid || '—'}
                   </span>
                 </td>
@@ -141,7 +138,7 @@ function ResultsTable({ raceId }: { raceId: number }) {
 
                 {/* Laps */}
                 <td className="px-4 py-3.5 text-right hidden sm:table-cell">
-                  <span className="font-mono text-[13px]" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                  <span className="font-mono text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
                     {r.laps_completed ?? '—'}
                   </span>
                 </td>
@@ -182,7 +179,7 @@ function ResultsTable({ raceId }: { raceId: number }) {
                     />
                     <span
                       className="text-[12px] font-medium"
-                      style={{ color: dnf ? 'rgba(239,68,68,0.7)' : 'rgba(255,255,255,0.45)' }}
+                      style={{ color: dnf ? 'rgba(239,68,68,0.7)' : 'rgba(255,255,255,0.75)' }}
                     >
                       {r.status ?? '—'}
                     </span>
@@ -296,9 +293,9 @@ function PitStopsTable({ raceId }: { raceId: number }) {
         className="flex items-center px-5 py-3 gap-4"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.025)' }}
       >
-        <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6b7280' }}>Driver · Strategy</span>
-        <span className="w-16 text-right text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6b7280' }}>Stops</span>
-        <span className="w-28 text-right text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#6b7280' }}>Best Stop</span>
+        <span className="flex-1 text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#d1d5db' }}>Driver · Strategy</span>
+        <span className="w-16 text-right text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#d1d5db' }}>Stops</span>
+        <span className="w-28 text-right text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#d1d5db' }}>Best Stop</span>
         <span className="w-6" />
       </div>
 
@@ -465,11 +462,16 @@ export default function Races() {
     <div className="space-y-6 pb-12">
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 animate-fade-in">
-        <div>
-          <h1 className="font-display font-bold text-[28px] uppercase tracking-[0.06em] text-white">Races</h1>
-          <p className="text-[11px] text-f1muted mt-1 uppercase tracking-widest font-semibold">Round-by-round results & pit stop strategy</p>
+      <div style={{ borderBottom: '1px solid #1a1a1a', paddingBottom: 16 }} className="animate-fade-in">
+        <div className="flex items-center gap-2 mb-1">
+          <span style={{ color: '#E10600', fontSize: 10 }}>◆</span>
+          <span className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.2em', color: '#d1d5db' }}>RACES</span>
         </div>
+        <div style={{ height: 1, background: '#1a1a1a', marginBottom: 8, maxWidth: 40 }} />
+        <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db', marginBottom: 4 }}>
+          2021 SEASON · 22 ROUNDS
+        </p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>Every race. Every lap. Every decision.</p>
       </div>
 
       {racesLoading ? <LoadingSpinner message="Loading race calendar…" /> :
@@ -549,7 +551,7 @@ export default function Races() {
 
                       {/* Race name */}
                       <h2 className="font-display font-bold text-2xl text-white leading-tight mb-3">
-                        {shortName(selected.race_name)}
+                        {shortName(selected.race_name, 5)}
                       </h2>
 
                       {/* Meta pills */}

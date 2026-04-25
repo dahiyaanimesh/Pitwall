@@ -44,12 +44,8 @@ log = logging.getLogger(__name__)
 TRAIN_ROUNDS = 17   # train on R1-R17
 TEST_ROUNDS  = 5    # test  on R18-R22
 
-# ─── Known street circuits in 2021 ────────────────────────────────────────────
-STREET_CIRCUITS = {
-    "monaco", "baku", "singapore",
-    "formula_1_grand_prix_de_monaco_2021",
-    "formula_1_azerbaijan_grand_prix_2021",
-}
+# ─── Known street circuits (matched against circuit_key / circuit_id substring) ─
+STREET_CIRCUITS = {"monaco", "baku", "singapore", "jeddah", "las_vegas", "miami"}
 
 # ─── DB helper ────────────────────────────────────────────────────────────────
 

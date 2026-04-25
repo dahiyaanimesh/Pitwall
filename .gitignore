@@ -1,5 +1,42 @@
+# Claude / agent tooling
 .claude/
 .agents/
 skills-lock.json
+
+# Node
 node_modules/
 frontend/dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# ML artefacts
+*.pkl
+*.joblib
+backend/ml/models/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/

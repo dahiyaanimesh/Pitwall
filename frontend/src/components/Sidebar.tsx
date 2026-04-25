@@ -1,5 +1,6 @@
 import { useLocation, Link } from 'react-router-dom'
 import { Activity, GitBranch, Cloud, CircleDot, Clock } from 'lucide-react'
+import { useSeason } from '../context/SeasonContext'
 
 const ITEMS = [
   { Icon: Activity,   label: 'Telemetry',    path: '/' },
@@ -11,6 +12,7 @@ const ITEMS = [
 
 export default function Sidebar() {
   const { pathname } = useLocation()
+  const { season } = useSeason()
 
   const activeLabel =
     pathname === '/'            ? 'Telemetry' :
@@ -39,9 +41,9 @@ export default function Sidebar() {
         </div>
         <p
           className="uppercase font-medium pl-3.5"
-          style={{ fontSize: 10, letterSpacing: '0.2em', color: '#6b7280' }}
+          style={{ fontSize: 10, letterSpacing: '0.2em', color: '#9ca3af' }}
         >
-          Live Session
+          {season} Season
         </p>
       </div>
 
@@ -55,11 +57,11 @@ export default function Sidebar() {
             <>
               <Icon
                 size={15}
-                style={{ color: isActive ? '#E10600' : '#4b5563', flexShrink: 0 }}
+                style={{ color: isActive ? '#E10600' : '#9ca3af', flexShrink: 0 }}
               />
               <span
                 className="text-[12px] font-medium"
-                style={{ color: isActive ? '#ffffff' : '#6b7280' }}
+                style={{ color: isActive ? '#ffffff' : '#d1d5db' }}
               >
                 {label}
               </span>

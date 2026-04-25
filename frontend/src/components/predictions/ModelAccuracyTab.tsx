@@ -2,6 +2,7 @@ import {
   ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Cell,
 } from 'recharts'
+import { shortName } from '../../utils/formatters'
 import { useModelAccuracy } from '../../hooks/usePredictions'
 import LoadingSpinner from '../LoadingSpinner'
 import ErrorMessage from '../ErrorMessage'
@@ -24,10 +25,6 @@ function MetricCard({ label, value, sub, color }: MetricCardProps) {
       {sub && <p style={{ fontSize: 11, color: '#6b7280', marginTop: 6 }}>{sub}</p>}
     </div>
   )
-}
-
-function shortName(name: string) {
-  return name.replace('FORMULA 1 ', '').replace(/\d{4}$/, '').replace(/GRAND PRIX/i, 'GP').trim().split(' ').slice(0, 2).join(' ')
 }
 
 function mergeSeriesForChart(ver: DriverSeriesPoint[], ham: DriverSeriesPoint[]) {
@@ -82,7 +79,7 @@ export default function ModelAccuracyTab({ season }: Props) {
     const d = payload[0]?.payload
     return (
       <div className="rounded-lg px-3 py-2 text-xs" style={CARD_STYLE}>
-        <p className="text-white font-semibold mb-0.5">{shortName(d.race_name)}</p>
+        <p className="text-white font-semibold mb-0.5">{shortName(d.race_name, 2)}</p>
         <p className="font-mono" style={{ color: d.in_test_set ? '#e10600' : '#6b7280' }}>MAE: {d.mae.toFixed(2)} pos</p>
       </div>
     )

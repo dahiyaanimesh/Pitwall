@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import RaceSwiper from '../components/RaceSwiper'
+import { shortName } from '../utils/formatters'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -53,17 +55,6 @@ const SEASON_DRIVERS = [
   'LAT', 'RUS', 'MSC', 'MAZ',
 ]
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function shortName(name: string) {
-  return name
-    .replace('FORMULA 1 ', '')
-    .replace(/\d{4}/g, '')
-    .replace(/GRAND PRIX/i, 'GP')
-    .trim()
-    .split(' ')
-    .slice(0, 3)
-    .join(' ')
-}
 
 function compoundTag(compound: string) {
   const c = compound.toUpperCase()
@@ -282,7 +273,7 @@ function CompoundLegend({ compounds }: { compounds: string[] }) {
         return (
           <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 12, height: 12, borderRadius: 2, background: color }} />
-            <span style={{ fontSize: 11, color: '#6b7280' }}>
+            <span style={{ fontSize: 11, color: '#d1d5db' }}>
               {c === 'INTERMEDIATE' ? 'Inter' : c.charAt(0) + c.slice(1).toLowerCase()}
             </span>
           </div>
@@ -297,7 +288,7 @@ function BarTooltip({ active, payload, label }: { active?: boolean; payload?: { 
   if (!active || !payload?.length) return null
   return (
     <div style={{ background: '#1f1f1f', border: '1px solid #2a2a2a', borderRadius: 6, padding: '8px 12px', fontSize: 11 }}>
-      <p style={{ color: '#6b7280', marginBottom: 6, fontWeight: 600 }}>{label}</p>
+      <p style={{ color: '#d1d5db', marginBottom: 6, fontWeight: 600 }}>{label}</p>
       {payload.filter((p) => p.value > 0).map((p) => (
         <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
           <div style={{ width: 8, height: 8, borderRadius: 2, background: p.fill }} />
@@ -312,13 +303,13 @@ function BarTooltip({ active, payload, label }: { active?: boolean; payload?: { 
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
   return (
     <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '16px 20px' }}>
-      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 8 }}>
+      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 8 }}>
         {label}
       </p>
       <p style={{ fontSize: 26, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color, lineHeight: 1, marginBottom: 4 }}>
         {value}
       </p>
-      {sub && <p style={{ fontSize: 11, color: '#4b5563' }}>{sub}</p>}
+      {sub && <p style={{ fontSize: 11, color: '#9ca3af' }}>{sub}</p>}
     </div>
   )
 }
@@ -417,55 +408,34 @@ export default function Tires() {
     <div className="space-y-5 pb-10 animate-fade-in">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 className="font-display font-bold text-[28px] uppercase tracking-[0.06em] text-white" style={{ margin: '0 0 4px' }}>
-          TYRE ANALYSIS
-        </h1>
-        <p style={{ fontSize: 11, color: '#6b7280', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>
-          Compound Strategy &amp; Stint Analysis — {SEASON} Season
+      <div style={{ borderBottom: '1px solid #1a1a1a', paddingBottom: 16, marginBottom: 20 }}>
+        <div className="flex items-center gap-2 mb-1">
+          <span style={{ color: '#E10600', fontSize: 10 }}>◆</span>
+          <span className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.2em', color: '#d1d5db' }}>TIRES</span>
+        </div>
+        <div style={{ height: 1, background: '#1a1a1a', marginBottom: 8, maxWidth: 40 }} />
+        <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db', marginBottom: 4 }}>
+          COMPOUND USAGE · SEASON-LONG
         </p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginBottom: 16 }}>Compounds, stints, and degradation curves.</p>
 
-        {/* Race selector pills */}
+        {/* Race selector */}
         {usageLoading ? (
-          <div style={{ color: '#4b5563', fontSize: 12 }}>Loading races…</div>
+          <div style={{ color: '#9ca3af', fontSize: 12 }}>Loading races…</div>
         ) : (
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-            {races.map((race) => {
-              const isActive = race.race_id === selectedRaceId
-              return (
-                <button
-                  key={race.race_id}
-                  onClick={() => setSelectedRaceId(race.race_id)}
-                  style={{
-                    fontSize: 11, fontWeight: 600,
-                    fontFamily: '"JetBrains Mono", monospace',
-                    color:      isActive ? '#E10600' : '#6b7280',
-                    background: isActive ? 'rgba(225,6,0,0.15)' : '#141414',
-                    border:     `1px solid ${isActive ? 'rgba(225,6,0,0.3)' : '#2a2a2a'}`,
-                    borderRadius: 6,
-                    padding:    '5px 10px',
-                    cursor:     'pointer',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                  }}
-                >
-                  R{race.round_number}
-                </button>
-              )
-            })}
-          </div>
+          <RaceSwiper races={races} selectedId={selectedRaceId} onSelect={setSelectedRaceId} />
         )}
       </div>
 
       {/* ── Row 2: Race Stint Map (full width) ──────────────────────────────── */}
       <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px', marginBottom: 12 }}>
         <div style={{ marginBottom: 14 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 4 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
             Race Stint Map
           </p>
           <p style={{ fontSize: 14, fontWeight: 600, color: '#ffffff' }}>
             {selectedRaceMeta ? shortName(selectedRaceMeta.race_name) : '—'}
-            <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
+            <span style={{ color: '#d1d5db', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
               {stints ? `Round ${stints.round_number} · ${stints.total_laps} laps` : ''}
             </span>
           </p>
@@ -473,7 +443,7 @@ export default function Tires() {
 
         {stintsLoading ? (
           <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 12, color: '#4b5563' }}>Computing stints…</span>
+            <span style={{ fontSize: 12, color: '#9ca3af' }}>Computing stints…</span>
           </div>
         ) : stints && raceGanttRows.length > 0 ? (
           <>
@@ -495,7 +465,7 @@ export default function Tires() {
             <CompoundLegend compounds={raceCompounds} />
           </>
         ) : (
-          <p style={{ fontSize: 12, color: '#4b5563' }}>Select a race to view stint data.</p>
+          <p style={{ fontSize: 12, color: '#9ca3af' }}>Select a race to view stint data.</p>
         )}
       </div>
 
@@ -515,7 +485,7 @@ export default function Tires() {
             sub="per driver"
           />
           <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '16px 20px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 8 }}>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 8 }}>
               Fastest Pitstop
             </p>
             {stints.fastest_pitstop ? (
@@ -523,7 +493,7 @@ export default function Tires() {
                 <p style={{ fontSize: 22, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: '#22D3A5', lineHeight: 1, marginBottom: 4 }}>
                   {stints.fastest_pitstop.pit_duration_seconds.toFixed(1)}s
                 </p>
-                <p style={{ fontSize: 11, color: '#4b5563' }}>
+                <p style={{ fontSize: 11, color: '#9ca3af' }}>
                   {stints.fastest_pitstop.abbreviation} · Lap {stints.fastest_pitstop.lap_number}
                 </p>
               </>
@@ -532,7 +502,7 @@ export default function Tires() {
             )}
           </div>
           <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '16px 20px' }}>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 8 }}>
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 8 }}>
               Winning Strategy
             </p>
             {winner ? (
@@ -543,7 +513,7 @@ export default function Tires() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                   {winner.stints.slice(0, 4).map((s, i) => (
                     <React.Fragment key={i}>
-                      {i > 0 && <span style={{ color: '#4b5563', fontSize: 11 }}>→</span>}
+                      {i > 0 && <span style={{ color: '#9ca3af', fontSize: 11 }}>→</span>}
                       {compoundTag(s.compound)}
                     </React.Fragment>
                   ))}
@@ -558,20 +528,20 @@ export default function Tires() {
 
       {/* ── Row 4: Season Compound Usage — bar (3fr) + donut (2fr) ──────────── */}
       <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px', marginBottom: 12 }}>
-        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 16 }}>
+        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 16 }}>
           Season Compound Usage
         </p>
 
         {usageLoading ? (
           <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 12, color: '#4b5563' }}>Loading…</span>
+            <span style={{ fontSize: 12, color: '#9ca3af' }}>Loading…</span>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 24, alignItems: 'start' }}>
 
             {/* Stacked bar chart — col-span-3 */}
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 11, color: '#4b5563', marginBottom: 10 }}>Laps per compound per race</p>
+              <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>Laps per compound per race</p>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={barData} barSize={10} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <XAxis dataKey="name" tick={{ fill: '#4b5563', fontSize: 9 }} tickLine={false} axisLine={false} interval={1} />
@@ -587,7 +557,7 @@ export default function Tires() {
 
             {/* Donut + legend — col-span-2 */}
             <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <p style={{ fontSize: 11, color: '#4b5563', marginBottom: 10, alignSelf: 'flex-start' }}>Season totals</p>
+              <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10, alignSelf: 'flex-start' }}>Season totals</p>
               <div style={{ position: 'relative', width: '100%', maxWidth: 200 }}>
                 <ResponsiveContainer width="100%" height={170}>
                   <PieChart>
@@ -602,7 +572,7 @@ export default function Tires() {
                         const d = payload[0].payload
                         return (
                           <div style={{ background: '#1f1f1f', border: '1px solid #2a2a2a', borderRadius: 6, padding: '6px 10px', fontSize: 11 }}>
-                            <span style={{ color: '#6b7280' }}>{d.name}: </span>
+                            <span style={{ color: '#d1d5db' }}>{d.name}: </span>
                             <span style={{ color: '#fff', fontFamily: 'monospace' }}>{((d.value / donutTotal) * 100).toFixed(1)}%</span>
                           </div>
                         )
@@ -611,15 +581,15 @@ export default function Tires() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none' }}>
-                  <p style={{ fontSize: 9, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{SEASON}</p>
-                  <p style={{ fontSize: 8, color: '#4b5563' }}>SEASON</p>
+                  <p style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{SEASON}</p>
+                  <p style={{ fontSize: 8, color: '#9ca3af' }}>SEASON</p>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 10, alignSelf: 'flex-start', width: '100%' }}>
                 {donutRaw.map((d) => (
                   <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 10, height: 10, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: '#6b7280', fontFamily: '"JetBrains Mono", monospace' }}>
+                    <span style={{ fontSize: 11, color: '#d1d5db', fontFamily: '"JetBrains Mono", monospace' }}>
                       {d.name} — {((d.value / donutTotal) * 100).toFixed(1)}%
                     </span>
                   </div>
@@ -637,10 +607,10 @@ export default function Tires() {
         <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 2 }}>
+              <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 2 }}>
                 Driver Strategy Timeline
               </p>
-              <p style={{ fontSize: 11, color: '#4b5563' }}>Full season stint history</p>
+              <p style={{ fontSize: 11, color: '#9ca3af' }}>Full season stint history</p>
             </div>
             <select
               value={selectedDriver}
@@ -659,7 +629,7 @@ export default function Tires() {
 
           {drvLoading ? (
             <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 12, color: '#4b5563' }}>Loading…</span>
+              <span style={{ fontSize: 12, color: '#9ca3af' }}>Loading…</span>
             </div>
           ) : drvGanttRows.length > 0 ? (
             <>
@@ -672,16 +642,16 @@ export default function Tires() {
               <CompoundLegend compounds={['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET']} />
             </>
           ) : (
-            <p style={{ fontSize: 12, color: '#4b5563' }}>No strategy data for {selectedDriver}.</p>
+            <p style={{ fontSize: 12, color: '#9ca3af' }}>No strategy data for {selectedDriver}.</p>
           )}
         </div>
 
         {/* Compound performance — compact vertical cards */}
         <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px', minWidth: 0 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 4 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
             Compound Performance
           </p>
-          <p style={{ fontSize: 11, color: '#4b5563', marginBottom: 16 }}>Green flag laps only — 2021 season</p>
+          <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 16 }}>Green flag laps only — {SEASON} season</p>
 
           {perf && perf.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -713,21 +683,21 @@ export default function Tires() {
                       <p style={{ fontSize: 16, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: '#ffffff', lineHeight: 1 }}>
                         {p.avg_lap_time ? `${p.avg_lap_time.toFixed(1)}s` : '—'}
                       </p>
-                      <p style={{ fontSize: 9, color: '#4b5563', marginTop: 2 }}>{p.total_laps.toLocaleString()} laps</p>
+                      <p style={{ fontSize: 9, color: '#9ca3af', marginTop: 2 }}>{p.total_laps.toLocaleString()} laps</p>
                     </div>
                     {/* Degradation */}
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <p style={{ fontSize: 12, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: degColor, lineHeight: 1 }}>
                         {deg > 0 ? '+' : ''}{(deg * 1000).toFixed(1)}
                       </p>
-                      <p style={{ fontSize: 9, color: '#4b5563', marginTop: 2 }}>ms/lap</p>
+                      <p style={{ fontSize: 9, color: '#9ca3af', marginTop: 2 }}>ms/lap</p>
                     </div>
                   </div>
                 )
               })}
             </div>
           ) : (
-            <p style={{ fontSize: 12, color: '#4b5563' }}>Loading…</p>
+            <p style={{ fontSize: 12, color: '#9ca3af' }}>Loading…</p>
           )}
         </div>
       </div>
@@ -735,14 +705,14 @@ export default function Tires() {
       {/* ── Row 6: Strategy Clusters table (full width) ──────────────────────── */}
       <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px' }}>
         <div style={{ marginBottom: 14 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 4 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
             Strategy Clusters
           </p>
-          <p style={{ fontSize: 12, color: '#4b5563' }}>Races grouped by dominant pit stop count</p>
+          <p style={{ fontSize: 12, color: '#9ca3af' }}>Races grouped by dominant pit stop count</p>
         </div>
 
         {clustersLoading ? (
-          <div style={{ color: '#4b5563', fontSize: 12 }}>Loading…</div>
+          <div style={{ color: '#9ca3af', fontSize: 12 }}>Loading…</div>
         ) : clusters ? (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
@@ -757,7 +727,7 @@ export default function Tires() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #1f1f1f' }}>
                   {['Round', 'Race', 'Strategy', 'Avg Stops', 'Dominant Compound', 'Winner'].map((h) => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#4b5563' }}>
+                    <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af' }}>
                       {h}
                     </th>
                   ))}
@@ -773,10 +743,10 @@ export default function Tires() {
                   const cText = COMPOUND_TEXT[domCompound]  ?? '#fff'
                   return (
                     <tr key={r.race_id} style={{ borderBottom: '1px solid #161616', background: i % 2 === 1 ? 'rgba(255,255,255,0.012)' : 'transparent' }}>
-                      <td style={{ padding: '9px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#6b7280' }}>
+                      <td style={{ padding: '9px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#d1d5db' }}>
                         R{String(r.round_number).padStart(2, '0')}
                       </td>
-                      <td style={{ padding: '9px 12px', color: '#6b7280' }}>
+                      <td style={{ padding: '9px 12px', color: '#d1d5db' }}>
                         {shortName(r.race_name)}
                       </td>
                       <td style={{ padding: '9px 12px' }}>
@@ -790,7 +760,7 @@ export default function Tires() {
                           {r.dominant_strategy.toUpperCase()}
                         </span>
                       </td>
-                      <td style={{ padding: '9px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#6b7280' }}>
+                      <td style={{ padding: '9px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#d1d5db' }}>
                         {r.avg_stops.toFixed(1)}
                       </td>
                       <td style={{ padding: '9px 12px' }}>
@@ -803,7 +773,7 @@ export default function Tires() {
                             {domCompound}
                           </span>
                         ) : (
-                          <span style={{ color: '#4b5563' }}>—</span>
+                          <span style={{ color: '#9ca3af' }}>—</span>
                         )}
                       </td>
                       <td style={{ padding: '9px 12px', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700, color: '#ffffff', fontSize: 12 }}>

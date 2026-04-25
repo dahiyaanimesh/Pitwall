@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useSeason } from '../context/SeasonContext'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -7,17 +8,41 @@ import { TrendingUp, ArrowUp, ArrowDown, Minus, BarChart2 } from 'lucide-react'
 import { useDashboard } from '../hooks/useDashboard'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorMessage from '../components/ErrorMessage'
-import { TEAM_COLORS } from '../components/DriverAvatar'
+import gsap from 'gsap'
+import { SEASON_EDITORIAL } from '../data/editorialData'
+import { teamColor } from '../utils/formatters'
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
+// ─── GSAP countup stat ────────────────────────────────────────────────────────
 
-function teamColor(id: string | null | undefined) {
-  if (!id) return '#6b7280'
-  const lower = id.toLowerCase()
-  for (const [k, v] of Object.entries(TEAM_COLORS)) {
-    if (lower.includes(k) || k.includes(lower)) return v
-  }
-  return '#6b7280'
+function CountUpStat({
+  end,
+  decimals = 0,
+  prefix = '',
+  suffix = '',
+  duration = 1.4,
+}: {
+  end: number
+  decimals?: number
+  prefix?: string
+  suffix?: string
+  duration?: number
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    if (!ref.current) return
+    const obj = { val: 0 }
+    gsap.to(obj, {
+      val: end,
+      duration,
+      ease: 'power2.out',
+      onUpdate() {
+        if (ref.current) {
+          ref.current.textContent = prefix + obj.val.toFixed(decimals) + suffix
+        }
+      },
+    })
+  }, [end, decimals, prefix, suffix, duration])
+  return <span ref={ref}>{prefix}0{suffix}</span>
 }
 
 // ─── Chart tooltip ────────────────────────────────────────────────────────────
@@ -168,8 +193,133 @@ export default function Dashboard() {
     .filter((pt: any) => wantedRounds.has(pt.round))
     .map((pt: any) => pt.roundLabel)
 
+  const editorial = SEASON_EDITORIAL[season] ?? SEASON_EDITORIAL[2021]
+  const raceCount  = data.trajectory?.length ?? 22
+  const winnersCount = (data.standings ?? []).filter((s: any) => s.wins > 0).length
+  const winnerAbbrevs = (data.standings ?? [])
+    .filter((s: any) => s.wins > 0)
+    .map((s: any) => s.driver_id)
+    .slice(0, 6)
+    .join(' · ')
+
   return (
     <div className="space-y-4 pb-10 animate-fade-in">
+
+      {/* ── 0. Season Summary Hero ─────────────────────────────────────── */}
+      <div
+        className="rounded-lg overflow-hidden"
+        style={{ background: '#0d0d0d', border: '1px solid #1f1f1f' }}
+      >
+        {/* Top meta bar */}
+        <div
+          className="flex items-center gap-3 px-6 py-3"
+          style={{ borderBottom: '1px solid #161616' }}
+        >
+          <span style={{ color: '#E10600', fontSize: 10 }}>◆</span>
+          <span
+            className="font-mono uppercase"
+            style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db' }}
+          >
+            THE {season} SEASON
+          </span>
+          <div style={{ flex: 1, height: 1, background: '#1f1f1f', maxWidth: 80 }} />
+          <span
+            className="font-mono uppercase"
+            style={{ fontSize: 10, letterSpacing: '0.15em', color: '#d1d5db' }}
+          >
+            {raceCount} ROUNDS · {editorial.months}
+          </span>
+        </div>
+
+        {/* Main content: headline left, moments right */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-0">
+          {/* Left: headline + subtext */}
+          <div className="px-6 py-8" style={{ borderRight: '1px solid #161616' }}>
+            <h1
+              style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: 'clamp(24px, 3.2vw, 46px)',
+                fontWeight: 700,
+                color: '#ffffff',
+                lineHeight: 1.15,
+                marginBottom: 16,
+              }}
+            >
+              {(() => {
+                const parts = editorial.headline.split(editorial.italicWord)
+                return (
+                  <>
+                    {parts[0]}
+                    <em style={{ color: '#E10600', fontStyle: 'italic' }}>{editorial.italicWord}</em>
+                    {parts[1]}
+                  </>
+                )
+              })()}
+            </h1>
+            <p style={{ fontSize: 13, lineHeight: 1.7, color: 'rgba(255,255,255,0.65)', maxWidth: 480 }}>
+              {editorial.sub}
+            </p>
+          </div>
+
+          {/* Right: season moments */}
+          <div className="px-6 py-8">
+            <p className="font-mono uppercase mb-4" style={{ fontSize: 10, letterSpacing: '0.2em', color: '#d1d5db' }}>
+              SEASON · KEY MOMENTS
+            </p>
+            <div className="flex flex-col gap-0">
+              {editorial.moments.map((m, i) => (
+                <div
+                  key={m.round}
+                  className="flex gap-4 py-3"
+                  style={{
+                    borderBottom: i < editorial.moments.length - 1 ? '1px solid #161616' : undefined,
+                    borderLeft: m.accent ? '2px solid #E10600' : '2px solid transparent',
+                    paddingLeft: 12,
+                  }}
+                >
+                  <div className="flex-shrink-0" style={{ width: 100 }}>
+                    <span className="font-mono" style={{ fontSize: 10, color: m.accent ? '#E10600' : '#6b7280', letterSpacing: '0.08em' }}>
+                      {m.round}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 12, lineHeight: 1.6, color: m.accent ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.6)' }}>
+                    {m.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Stats bar */}
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5"
+          style={{ borderTop: '1px solid #161616' }}
+        >
+          {[
+            { label: 'RACES',         end: raceCount,             decimals: 0, suffix: '',    sub: editorial.lapSub },
+            { label: 'WINNERS',       end: winnersCount,          decimals: 0, suffix: '',    sub: winnerAbbrevs },
+            { label: 'POLE MARGIN Δ', end: 0.058,                 decimals: 3, suffix: 's',   sub: editorial.poleSub },
+            { label: 'SC PERIODS',    end: editorial.scPeriods,   decimals: 0, suffix: '',    sub: editorial.scPerRace },
+            { label: 'MODEL MAE',     end: editorial.modelMae,    decimals: 1, suffix: '',    sub: 'finishing positions (test)' },
+          ].map((stat, i) => (
+            <div
+              key={stat.label}
+              className="px-6 py-4"
+              style={{ borderRight: i < 4 ? '1px solid #161616' : undefined }}
+            >
+              <p className="font-mono uppercase mb-1" style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db' }}>
+                {stat.label}
+              </p>
+              <p className="font-display font-bold text-white leading-none mb-1" style={{ fontSize: 26 }}>
+                <CountUpStat end={stat.end} decimals={stat.decimals} suffix={stat.suffix} />
+              </p>
+              <p style={{ fontSize: 10, color: '#9ca3af' }}>{stat.sub}</p>
+            </div>
+          ))}
+        </div>
+
+      </div>
 
       {/* ── 1. Championship Standings Hero ─────────────────────────────── */}
       <div
@@ -193,17 +343,17 @@ export default function Dashboard() {
             </h2>
             <p
               className="mt-1 font-semibold uppercase"
-              style={{ fontSize: 10, letterSpacing: '0.18em', color: '#6b7280' }}
+              style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db' }}
             >
               Driver Championship &nbsp;·&nbsp; {season} Season
             </p>
           </div>
           <div className="text-right flex-shrink-0">
-            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6b7280' }}>
+            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#d1d5db' }}>
               Points Gap
             </p>
             <p className="font-display font-bold leading-none mt-0.5" style={{ fontSize: 28, color: '#ffffff' }}>
-              {data.season_stats.points_gap ?? '—'}<span style={{ fontSize: 12, color: '#4b5563', marginLeft: 3 }}>pts</span>
+              {data.season_stats.points_gap ?? '—'}<span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 3 }}>pts</span>
             </p>
           </div>
         </div>
@@ -226,11 +376,11 @@ export default function Dashboard() {
               </div>
               <div className="flex gap-6">
                 <div>
-                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>Points</p>
+                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#d1d5db', fontWeight: 600 }}>Points</p>
                   <p className="font-display font-bold text-white" style={{ fontSize: 22 }}>{p1.total_points}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>Wins</p>
+                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#d1d5db', fontWeight: 600 }}>Wins</p>
                   <p className="font-display font-bold text-white" style={{ fontSize: 22 }}>{p1.wins}</p>
                 </div>
               </div>
@@ -244,7 +394,7 @@ export default function Dashboard() {
           {p2 && (
             <div className="px-6 py-6" style={{ borderRight: '1px solid #1f1418' }}>
               <div className="flex items-baseline gap-3 mb-4">
-                <span className="font-display font-bold leading-none" style={{ fontSize: 48, color: '#4b5563', lineHeight: 1 }}>
+                <span className="font-display font-bold leading-none" style={{ fontSize: 48, color: '#9ca3af', lineHeight: 1 }}>
                   02
                 </span>
                 <div>
@@ -256,11 +406,11 @@ export default function Dashboard() {
               </div>
               <div className="flex gap-6">
                 <div>
-                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>Points</p>
+                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#d1d5db', fontWeight: 600 }}>Points</p>
                   <p className="font-display font-bold text-white/70" style={{ fontSize: 18 }}>{p2.total_points}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>Wins</p>
+                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#d1d5db', fontWeight: 600 }}>Wins</p>
                   <p className="font-display font-bold text-white/70" style={{ fontSize: 18 }}>{p2.wins}</p>
                 </div>
               </div>
@@ -281,7 +431,7 @@ export default function Dashboard() {
                   03
                 </span>
                 <div>
-                  <p className="font-display font-bold leading-none" style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)' }}>{p3.driver_id}</p>
+                  <p className="font-display font-bold leading-none" style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)' }}>{p3.driver_id}</p>
                   <p className="uppercase font-semibold mt-1" style={{ fontSize: 10, letterSpacing: '0.12em', color: teamColor(p3.team_id) }}>
                     {p3.team_name?.replace(' Racing', '').replace('Formula One', '').trim()}
                   </p>
@@ -289,12 +439,12 @@ export default function Dashboard() {
               </div>
               <div className="flex gap-6">
                 <div>
-                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#4b5563', fontWeight: 600 }}>Points</p>
-                  <p className="font-display font-bold" style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)' }}>{p3.total_points}</p>
+                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600 }}>Points</p>
+                  <p className="font-display font-bold" style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)' }}>{p3.total_points}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#4b5563', fontWeight: 600 }}>Wins</p>
-                  <p className="font-display font-bold" style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)' }}>{p3.wins}</p>
+                  <p style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600 }}>Wins</p>
+                  <p className="font-display font-bold" style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)' }}>{p3.wins}</p>
                 </div>
               </div>
               <div className="mt-4 rounded-full" style={{ height: 3, background: '#1a1a1a' }}>
@@ -371,7 +521,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={12} className="text-f1red" />
-                  <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6b7280' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#d1d5db' }}>
                     Championship Points Trajectory
                   </p>
                 </div>
@@ -447,7 +597,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center gap-2 mb-3">
             <BarChart2 size={12} className="text-f1muted" />
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6b7280' }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#d1d5db' }}>
               Constructor Standings
             </p>
           </div>
@@ -461,7 +611,7 @@ export default function Dashboard() {
         style={{ background: '#111111', border: '1px solid #1f1f1f' }}
       >
         <div className="px-6 py-4" style={{ borderBottom: '1px solid #1f1f1f' }}>
-          <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6b7280' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#d1d5db' }}>
             Driver Championship — {season}
           </p>
         </div>
@@ -471,7 +621,7 @@ export default function Dashboard() {
               {['Pos', 'Driver', 'Team', 'Pts', 'Gap', 'Wins', 'Avg'].map((h, i) => (
                 <th
                   key={h}
-                  style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#4b5563' }}
+                  style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af' }}
                   className={`px-4 py-3 ${i > 2 ? 'text-right' : 'text-left'} ${i === 2 ? 'hidden sm:table-cell' : ''} ${i === 6 ? 'hidden md:table-cell' : ''}`}
                 >
                   {h}

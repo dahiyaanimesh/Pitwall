@@ -45,11 +45,16 @@ export default function Predictions() {
   return (
     <div className="space-y-5 pb-10 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display font-bold text-[28px] uppercase tracking-[0.06em] text-white">Race Predictions</h1>
-          <p className="text-[11px] text-f1muted mt-1 uppercase tracking-widest font-semibold">ML-powered outcomes with SHAP explainability</p>
+      <div style={{ borderBottom: '1px solid #1a1a1a', paddingBottom: 16 }}>
+        <div className="flex items-center gap-2 mb-1">
+          <span style={{ color: '#E10600', fontSize: 10 }}>◆</span>
+          <span className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.2em', color: '#d1d5db' }}>PREDICTIONS</span>
         </div>
+        <div style={{ height: 1, background: '#1a1a1a', marginBottom: 8, maxWidth: 40 }} />
+        <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db', marginBottom: 4 }}>
+          RACE PREDICTIONS · XGBoost MODEL
+        </p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>What the model sees before lights out.</p>
       </div>
 
       {/* Model status */}

@@ -41,7 +41,7 @@ export default function Navbar() {
                       fontWeight: 600,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
-                      color: isActive ? '#E10600' : 'rgba(255,255,255,0.45)',
+                      color: isActive ? '#E10600' : 'rgba(255,255,255,0.8)',
                     }}
                   >
                     {label}
@@ -66,7 +66,7 @@ export default function Navbar() {
                     fontFamily: 'JetBrains Mono, monospace',
                     fontSize: 13,
                     fontWeight: 600,
-                    color:      isActive ? '#ffffff' : '#6b7280',
+                    color:      isActive ? '#ffffff' : '#d1d5db',
                     background: isActive ? '#e10600' : '#1f1f1f',
                     border:     `1px solid ${isActive ? '#e10600' : '#2a2a2a'}`,
                     borderRadius: 4,
@@ -84,7 +84,7 @@ export default function Navbar() {
                   onMouseLeave={(e) => {
                     if (!isActive) {
                       e.currentTarget.style.background = '#1f1f1f'
-                      e.currentTarget.style.color = '#6b7280'
+                      e.currentTarget.style.color = '#d1d5db'
                     }
                   }}
                 >
@@ -96,7 +96,7 @@ export default function Navbar() {
 
           {/* Mobile menu toggle */}
           <button className="md:hidden ml-auto" onClick={() => setMobileOpen(v => !v)}>
-            {mobileOpen ? <X size={18} className="text-white" /> : <Menu size={18} style={{ color: 'rgba(255,255,255,0.45)' }} />}
+            {mobileOpen ? <X size={18} className="text-white" /> : <Menu size={18} style={{ color: 'rgba(255,255,255,0.8)' }} />}
           </button>
         </div>
       </header>

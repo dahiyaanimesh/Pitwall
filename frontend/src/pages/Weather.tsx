@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
+import RaceSwiper from '../components/RaceSwiper'
 import { useTrackStatus, useSafetyCars, useStatusSummary, useSeasonOverview } from '../hooks/useWeather'
 import { useSeason } from '../context/SeasonContext'
 import type { TrackStatus, RaceSeasonOverview } from '../types/weather'
+import { shortName } from '../utils/formatters'
+import { TEMP_DATA, RAIN_DATA } from '../data/weatherData'
 
 // ── Status colours ────────────────────────────────────────────────────────────
 const STATUS_COLOR: Record<TrackStatus, string> = {
@@ -32,18 +35,6 @@ const DRIVER_COLOR: Record<string, string> = {
   RAI: '#900000', GIO: '#900000',
   MSC: '#787878', MAZ: '#787878',
   LAT: '#37BEDD', RUS: '#37BEDD',
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function shortName(name: string) {
-  return name
-    .replace(/FORMULA 1\s*/i, '')
-    .replace(/\d{4}/g, '')
-    .replace(/GRAND PRIX/i, 'GP')
-    .trim()
-    .split(' ')
-    .slice(0, 3)
-    .join(' ')
 }
 
 function StatusBadge({ type }: { type: 'SC' | 'VSC' }) {
@@ -130,7 +121,7 @@ function SeasonHeatmap({ races, season }: { races: RaceSeasonOverview[]; season:
       {/* Title row with legend */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
         <div>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 2 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 2 }}>
             {season} Season — Track Status Heatmap
           </p>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Each cell = one lap · Hover for details</p>
@@ -144,7 +135,7 @@ function SeasonHeatmap({ races, season }: { races: RaceSeasonOverview[]; season:
                 border: border ? `1px solid ${border}` : undefined,
                 flexShrink: 0,
               }} />
-              <span style={{ fontSize: 10, color: '#6b7280', whiteSpace: 'nowrap' }}>{label}</span>
+              <span style={{ fontSize: 10, color: '#d1d5db', whiteSpace: 'nowrap' }}>{label}</span>
             </div>
           ))}
         </div>
@@ -209,7 +200,7 @@ function SeasonHeatmap({ races, season }: { races: RaceSeasonOverview[]; season:
                   left: (lap - 1) * (cellW + cellGap) + cellW / 2,
                   top: 0,
                   fontSize: 10,
-                  color: '#6b7280',
+                  color: '#d1d5db',
                   transform: 'translateX(-50%)',
                   whiteSpace: 'nowrap',
                   lineHeight: `${AXIS_H}px`,
@@ -395,7 +386,7 @@ function TimelineBar({ lapStatuses, totalLaps }: TimelineProps) {
                 position: 'absolute',
                 left: `${((lap - 1) / actual) * 100}%`,
                 fontSize: 10,
-                color: '#6b7280',
+                color: '#d1d5db',
                 fontFamily: '"JetBrains Mono", monospace',
                 transform: 'translateX(-50%)',
               }}
@@ -408,7 +399,7 @@ function TimelineBar({ lapStatuses, totalLaps }: TimelineProps) {
             position: 'absolute',
             right: 0,
             fontSize: 10,
-            color: '#6b7280',
+            color: '#d1d5db',
             fontFamily: '"JetBrains Mono", monospace',
           }}
         >
@@ -421,7 +412,7 @@ function TimelineBar({ lapStatuses, totalLaps }: TimelineProps) {
         {(Object.entries(STATUS_COLOR) as [TrackStatus, string][]).map(([status, color]) => (
           <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 12, height: 12, borderRadius: 2, background: color }} />
-            <span style={{ fontSize: 11, color: '#6b7280' }}>
+            <span style={{ fontSize: 11, color: '#d1d5db' }}>
               {status === 'SC' ? 'Safety Car' : status === 'VSC' ? 'Virtual SC' : status === 'Red' ? 'Red Flag' : status}
             </span>
           </div>
@@ -439,13 +430,13 @@ function SummaryCard({
 }) {
   return (
     <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '16px 20px', overflow: 'hidden', position: 'relative' }}>
-      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 8 }}>
+      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 8 }}>
         {label}
       </p>
       <p style={{ fontSize: 28, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color, lineHeight: 1, marginBottom: 4 }}>
         {value}
       </p>
-      <p style={{ fontSize: 11, color: '#4b5563', marginBottom: 10 }}>{sub}</p>
+      <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>{sub}</p>
       {/* Mini proportion bar */}
       <div style={{ height: 3, background: '#1f1f1f', borderRadius: 2, overflow: 'hidden' }}>
         <div
@@ -488,69 +479,32 @@ export default function Weather() {
   return (
     <div className="space-y-5 pb-10 animate-fade-in">
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display font-bold text-[28px] uppercase tracking-[0.06em] text-white">Track Conditions</h1>
-          <p className="text-[11px] text-f1muted mt-1 uppercase tracking-widest font-semibold">
-            {selectedRace
-              ? `Session: R${selectedRace.round_number} — ${shortName(selectedRace.race_name)}`
-              : `Safety Car & Status Analysis — ${SEASON} Season`}
-          </p>
+      <div style={{ borderBottom: '1px solid #1a1a1a', paddingBottom: 16 }}>
+        <div className="flex items-center gap-2 mb-1">
+          <span style={{ color: '#E10600', fontSize: 10 }}>◆</span>
+          <span className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.2em', color: '#d1d5db' }}>WEATHER</span>
         </div>
+        <div style={{ height: 1, background: '#1a1a1a', marginBottom: 8, maxWidth: 40 }} />
+        <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: '0.18em', color: '#d1d5db', marginBottom: 4 }}>
+          TRACK CONDITIONS · PER SESSION
+        </p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>Air, track, humidity, wind.</p>
       </div>
 
-      {/* ── Race selector pills ─────────────────────────────────────────── */}
+      {/* ── Race selector ────────────────────────────────────────────────── */}
       {overviewLoading ? (
-        <div style={{ color: '#4b5563', fontSize: 12 }}>Loading races…</div>
+        <div style={{ color: '#9ca3af', fontSize: 12 }}>Loading races…</div>
       ) : (
-        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-          {races.map((race) => {
-            const isActive = race.race_id === selectedRaceId
-            const hasSC  = race.sc_laps > 0
-            const hasVSC = race.vsc_laps > 0
-            const isAD   = SEASON === 2021 && race.round_number === 22
-            return (
-              <button
-                key={race.race_id}
-                onClick={() => setSelectedRaceId(race.race_id)}
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  color: isActive ? '#ffffff' : '#6b7280',
-                  background: isActive ? 'rgba(225,6,0,0.15)' : '#1a1a1a',
-                  border: `1px solid ${isActive ? 'rgba(225,6,0,0.3)' : isAD ? 'rgba(225,6,0,0.25)' : '#1f1f1f'}`,
-                  borderRadius: 4,
-                  padding: '4px 8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                }}
-              >
-                R{race.round_number}
-                {hasSC && (
-                  <span
-                    style={{
-                      width: 5, height: 5, borderRadius: '50%',
-                      background: '#e10600',
-                      display: 'inline-block', flexShrink: 0,
-                    }}
-                  />
-                )}
-                {!hasSC && hasVSC && (
-                  <span
-                    style={{
-                      width: 5, height: 5, borderRadius: '50%',
-                      background: '#f97316',
-                      display: 'inline-block', flexShrink: 0,
-                    }}
-                  />
-                )}
-              </button>
-            )
-          })}
-        </div>
+        <RaceSwiper
+          races={races}
+          selectedId={selectedRaceId}
+          onSelect={setSelectedRaceId}
+          badge={(race) => {
+            if (race.sc_laps > 0) return <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#e10600', display: 'inline-block', flexShrink: 0 }} />
+            if (race.vsc_laps > 0) return <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#f97316', display: 'inline-block', flexShrink: 0 }} />
+            return null
+          }}
+        />
       )}
 
       {selectedRace && (
@@ -565,12 +519,12 @@ export default function Weather() {
             }}
           >
             <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 4 }}>
+              <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
                 Race Status Timeline
               </p>
               <p style={{ fontSize: 14, fontWeight: 600, color: '#ffffff' }}>
                 {shortName(selectedRace.race_name)}
-                <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
+                <span style={{ color: '#d1d5db', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
                   Round {selectedRace.round_number} · {selectedRace.total_laps} laps
                 </span>
               </p>
@@ -578,7 +532,7 @@ export default function Weather() {
 
             {statusLoading ? (
               <div style={{ height: 64, background: '#1a1a1a', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 12, color: '#4b5563' }}>Loading…</span>
+                <span style={{ fontSize: 12, color: '#9ca3af' }}>Loading…</span>
               </div>
             ) : trackStatus ? (
               <TimelineBar lapStatuses={trackStatus} totalLaps={selectedRace.total_laps} />
@@ -604,13 +558,13 @@ export default function Weather() {
                     <div style={{ flex: 1 }}>
                       <p style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', marginBottom: 4 }}>
                         Laps {ev.lap_start}–{ev.lap_end}
-                        <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
+                        <span style={{ color: '#d1d5db', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
                           ({ev.laps_neutralised} lap{ev.laps_neutralised !== 1 ? 's' : ''} neutralised)
                         </span>
                       </p>
                       {ev.drivers_pitted.length > 0 && (
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-                          <span style={{ fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', alignSelf: 'center' }}>
+                          <span style={{ fontSize: 10, color: '#d1d5db', textTransform: 'uppercase', letterSpacing: '0.1em', alignSelf: 'center' }}>
                             Pitted:
                           </span>
                           {ev.drivers_pitted.map((d) => {
@@ -693,7 +647,7 @@ export default function Weather() {
       >
         {overviewLoading ? (
           <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 12, color: '#4b5563' }}>Loading heatmap…</span>
+            <span style={{ fontSize: 12, color: '#9ca3af' }}>Loading heatmap…</span>
           </div>
         ) : races.length > 0 ? (
           <SeasonHeatmap races={races} season={SEASON} />
@@ -710,14 +664,14 @@ export default function Weather() {
         }}
       >
         <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6b7280', marginBottom: 4 }}>
+          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
             SC Impact Analysis
           </p>
-          <p style={{ fontSize: 12, color: '#4b5563' }}>All safety car &amp; virtual safety car deployments — {SEASON} season</p>
+          <p style={{ fontSize: 12, color: '#9ca3af' }}>All safety car &amp; virtual safety car deployments — {SEASON} season</p>
         </div>
 
         {scLoading ? (
-          <div style={{ color: '#4b5563', fontSize: 12 }}>Loading…</div>
+          <div style={{ color: '#9ca3af', fontSize: 12 }}>Loading…</div>
         ) : safetyCars && safetyCars.length > 0 ? (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
@@ -732,7 +686,7 @@ export default function Weather() {
                       fontWeight: 600,
                       textTransform: 'uppercase',
                       letterSpacing: '0.12em',
-                      color: '#4b5563',
+                      color: '#9ca3af',
                       whiteSpace: 'nowrap',
                     }}
                   >
@@ -758,7 +712,7 @@ export default function Weather() {
                         {shortName(ev.race_name)}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '10px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#d1d5db', whiteSpace: 'nowrap' }}>
                       R{ev.round}
                     </td>
                     <td style={{ padding: '10px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#ffffff', whiteSpace: 'nowrap' }}>
@@ -767,7 +721,7 @@ export default function Weather() {
                     <td style={{ padding: '10px 12px' }}>
                       <StatusBadge type={ev.type} />
                     </td>
-                    <td style={{ padding: '10px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '10px 12px', fontFamily: '"JetBrains Mono", monospace', color: '#d1d5db', whiteSpace: 'nowrap' }}>
                       {ev.laps_neutralised} lap{ev.laps_neutralised !== 1 ? 's' : ''}
                     </td>
                     <td style={{ padding: '10px 12px' }}>
@@ -788,7 +742,7 @@ export default function Weather() {
                           ⚠ CHAMPIONSHIP DECIDER
                         </span>
                       ) : isMajor ? (
-                        <span style={{ fontSize: 10, color: '#6b7280' }}>Significant</span>
+                        <span style={{ fontSize: 10, color: '#d1d5db' }}>Significant</span>
                       ) : (
                         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>—</span>
                       )}
@@ -821,7 +775,7 @@ export default function Weather() {
                           )
                         })}
                         {ev.drivers_pitted.length > 10 && (
-                          <span style={{ fontSize: 10, color: '#4b5563', alignSelf: 'center' }}>+{ev.drivers_pitted.length - 10}</span>
+                          <span style={{ fontSize: 10, color: '#9ca3af', alignSelf: 'center' }}>+{ev.drivers_pitted.length - 10}</span>
                         )}
                         {ev.drivers_pitted.length === 0 && (
                           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>—</span>
@@ -834,9 +788,106 @@ export default function Weather() {
             </tbody>
           </table>
         ) : (
-          <p style={{ fontSize: 12, color: '#4b5563' }}>No safety car deployments found.</p>
+          <p style={{ fontSize: 12, color: '#9ca3af' }}>No safety car deployments found.</p>
         )}
       </div>
+
+      {/* ── Section 5: Temperature Ranges + Rain Sessions ──────────────── */}
+      {(() => {
+        const temps = TEMP_DATA[SEASON]
+        const rain  = RAIN_DATA[SEASON]
+        if (!temps || !rain) return null
+
+        const allMin = Math.min(...temps.map(t => t.min))
+        const allMax = Math.max(...temps.map(t => t.max))
+        const totalRange = allMax - allMin
+
+        const rainRounds = new Set(rain.rounds)
+        const rounds = Array.from({ length: rain.totalRounds }, (_, i) => i + 1)
+        const half = Math.ceil(rain.totalRounds / 2)
+        const rows = [rounds.slice(0, half), rounds.slice(half)]
+
+        return (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+            {/* Temperature ranges */}
+            <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px' }}>
+              <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
+                Temperature Ranges · Season
+              </p>
+              <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 16 }}>Approximate air temperature range per venue</p>
+              {temps.map(({ name, min, max }) => {
+                const barStart = ((min - allMin) / totalRange) * 100
+                const barWidth = ((max - min) / totalRange) * 100
+                const hot = max >= 38
+                return (
+                  <div key={name} className="flex items-center gap-3 mb-2">
+                    <span style={{ width: 90, fontSize: 10, color: '#d1d5db', flexShrink: 0, textAlign: 'right' }}>{name}</span>
+                    <div style={{ flex: 1, height: 6, background: '#1a1a1a', borderRadius: 3, position: 'relative' }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: `${barStart}%`,
+                          width: `${barWidth}%`,
+                          height: '100%',
+                          borderRadius: 3,
+                          background: hot
+                            ? 'linear-gradient(90deg, #60a5fa, #f97316)'
+                            : 'linear-gradient(90deg, #60a5fa, #fb923c)',
+                        }}
+                      />
+                    </div>
+                    <span style={{ width: 60, fontSize: 9, color: '#9ca3af', flexShrink: 0, fontFamily: '"JetBrains Mono", monospace' }}>
+                      {min}°–{max}°C
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Rain sessions */}
+            <div style={{ background: '#111111', border: '1px solid #1f1f1f', borderRadius: 8, padding: '20px 24px' }}>
+              <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#d1d5db', marginBottom: 4 }}>
+                Rain Sessions · Logged
+              </p>
+              <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 16 }}>Race rounds affected by precipitation</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {rows.map((row, ri) => (
+                  <div key={ri} style={{ display: 'flex', gap: 6 }}>
+                    {row.map((r) => {
+                      const isRain = rainRounds.has(r)
+                      return (
+                        <div
+                          key={r}
+                          style={{
+                            flex: 1,
+                            aspectRatio: '1',
+                            borderRadius: 4,
+                            background: isRain ? '#0ea5e9' : '#161616',
+                            border: `1px solid ${isRain ? '#38bdf8' : '#1f1f1f'}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 10,
+                            fontFamily: '"JetBrains Mono", monospace',
+                            color: isRain ? '#ffffff' : '#2a2a2a',
+                            fontWeight: isRain ? 700 : 400,
+                          }}
+                        >
+                          {r}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ))}
+                <p style={{ fontSize: 10, color: '#9ca3af', marginTop: 8, lineHeight: 1.6 }}>
+                  {rain.rounds.length} of {rain.totalRounds} races saw rain — incl. {rain.label}
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

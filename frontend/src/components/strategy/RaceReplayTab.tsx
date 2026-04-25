@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import {
   ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Cell, Bar,
@@ -50,7 +50,7 @@ export default function RaceReplayTab({ raceId, driverId, setDriverId, available
 
   const isAbuDhabi2021 = raceId === ABU_DHABI_2021
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = useCallback(({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null
     const row = payload[0]?.payload as ReplayLap
     return (
@@ -79,7 +79,7 @@ export default function RaceReplayTab({ raceId, driverId, setDriverId, available
         )}
       </div>
     )
-  }
+  }, [])
 
   if (!raceId) return (
     <div className="py-16 text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>
