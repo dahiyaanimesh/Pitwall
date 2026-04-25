@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import Lenis from 'lenis'
 import { SeasonProvider } from './context/SeasonContext'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
@@ -33,8 +32,8 @@ function AnimatedRoutes() {
   const location = useLocation()
 
   useEffect(() => {
-    const label = PAGE_TITLES[location.pathname] ?? 'Pitwall'
-    document.title = `${label} · Pitwall`
+    const label = PAGE_TITLES[location.pathname]
+    document.title = label ? `${label} · Pitwall` : 'Pitwall'
   }, [location.pathname])
 
   return (
@@ -45,7 +44,7 @@ function AnimatedRoutes() {
         initial="initial"
         animate="animate"
         exit="exit"
-        style={{ height: '100%' }}
+        style={{ minHeight: '100%' }}
       >
         <Routes location={location}>
           <Route path="/"            element={<Dashboard />} />
@@ -62,31 +61,6 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
-  const mainRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    if (!mainRef.current) return
-    const lenis = new Lenis({
-      wrapper: mainRef.current,
-      content: mainRef.current,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    })
-
-    let raf: number
-    function loop(time: number) {
-      lenis.raf(time)
-      raf = requestAnimationFrame(loop)
-    }
-    raf = requestAnimationFrame(loop)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      lenis.destroy()
-    }
-  }, [])
-
   return (
     <SeasonProvider>
       <div className="h-screen flex flex-col bg-f1dark text-white font-sans overflow-hidden">
@@ -94,9 +68,8 @@ export default function App() {
         <div className="flex flex-1 overflow-hidden">
           <Sidebar />
           <main
-            ref={mainRef}
             className="flex-1 min-w-0 overflow-y-auto dot-grid p-6"
-            style={{ background: '#0a0a0a' }}
+            style={{ background: '#0a0a0a', scrollBehavior: 'smooth' }}
           >
             <AnimatedRoutes />
           </main>

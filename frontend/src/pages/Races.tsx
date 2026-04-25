@@ -484,7 +484,7 @@ export default function Races() {
               <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <p className="section-label">{season} Season · {races.length} Rounds</p>
               </div>
-              <div className="max-h-[72vh] overflow-y-auto">
+              <div className="max-h-[72vh] overflow-y-auto overscroll-contain">
                 {races.map((race) => {
                   const active = race.race_id === selectedId
                   const date   = race.race_date

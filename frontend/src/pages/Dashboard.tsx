@@ -31,7 +31,7 @@ function CountUpStat({
   useEffect(() => {
     if (!ref.current) return
     const obj = { val: 0 }
-    gsap.to(obj, {
+    const tween = gsap.to(obj, {
       val: end,
       duration,
       ease: 'power2.out',
@@ -41,8 +41,9 @@ function CountUpStat({
         }
       },
     })
+    return () => { tween.kill() }
   }, [end, decimals, prefix, suffix, duration])
-  return <span ref={ref}>{prefix}0{suffix}</span>
+  return <span ref={ref}>{prefix}{(0).toFixed(decimals)}{suffix}</span>
 }
 
 // ─── Chart tooltip ────────────────────────────────────────────────────────────
@@ -247,6 +248,7 @@ export default function Dashboard() {
             >
               {(() => {
                 const parts = editorial.headline.split(editorial.italicWord)
+                if (parts.length < 2) return <>{editorial.headline}</>
                 return (
                   <>
                     {parts[0]}
